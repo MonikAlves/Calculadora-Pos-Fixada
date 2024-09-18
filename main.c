@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 const char soma = '+';
 const char subtração = '-';
 const char multiplicação = '*';
 const char divisão = '/';
 const char elevado = '^';
+int passos =0;
 
 typedef struct no{
     double numero;
@@ -25,22 +27,14 @@ double add(double number,char converter){
     return number;
 }
 
-int expoente(double number, double expo, int quantitity){
-    if(quantitity){
-        int number = 1;
-        int size = (int) expo;
-        while(size){
-            number *= 10;
-            size /= 10; 
-        }
-        return number;
-      }else{
-        int soma = 1;
-        for(int i = 0;i<expo;i++){
-            soma *= number;
-        }
-        return soma;
+int expoente(double expo){
+    int number = 1;
+    int size = (int) expo;
+    while(size){
+        number *= 10;
+        size /= 10; 
     }
+    return number;    
 }
 
 void empilhar(No** new,double number){
@@ -67,12 +61,15 @@ double desimpilhar(No** new){
 void operação(No ** new, char operação){
     double segundo = desimpilhar(new);
     double primeiro = desimpilhar(new);
-
-    if(operação == soma) empilhar(new,primeiro + segundo);
-    if(operação == subtração) empilhar(new,primeiro - segundo);
-    if(operação == multiplicação) empilhar(new,primeiro * segundo);
-    if(operação == divisão) empilhar(new,primeiro / segundo);
-    if(operação == elevado) empilhar(new, expoente(primeiro,segundo,0));
+    double resultado;
+    if(operação == soma) resultado = primeiro + segundo;
+    if(operação == subtração) resultado = primeiro - segundo;
+    if(operação == multiplicação) resultado = primeiro * segundo;
+    if(operação == divisão) resultado = primeiro / segundo;
+    if(operação == elevado) resultado = pow(primeiro,segundo);
+    empilhar(new,resultado);
+    passos++;
+    printf("%dº -> %.3f %c %.3f = %.3f \n",passos,primeiro,operação,segundo,resultado);
 }
 
 void o(No* no){
@@ -81,6 +78,7 @@ void o(No* no){
         printf("%.2f - ",aux->numero);
         aux = aux->next;
     }
+    passos = 0;
 }
 
 void notação(char* expressão){
@@ -95,7 +93,7 @@ void notação(char* expressão){
         while(aux){
             if(expressão[i] == ' ' || expressão[i] == '\0'){
                 aux = 0;
-                number = integer + (decimal/expoente(10,decimal,1));
+                number = integer + (decimal/expoente(decimal));
                 empilhar(&new,number);
                 break;
             }
@@ -124,8 +122,8 @@ void notação(char* expressão){
 
         }
     }
+    printf("Resultado final: ");
     o(new);
-    printf("a");
 
 }
 
