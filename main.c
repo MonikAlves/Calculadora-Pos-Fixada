@@ -27,6 +27,14 @@ double add(double number,char converter){
     return number;
 }
 
+void limparterminal(){
+	#ifdef _WIN32
+        system("cls");  // Comando para Windows
+    #else
+        system("clear");  // Comando para Linux e macOS
+    #endif
+}
+
 int expoente(double expo){
     int number = 1;
     int size = (int) expo;
@@ -69,13 +77,13 @@ void operação(No ** new, char operação){
     if(operação == elevado) resultado = pow(primeiro,segundo);
     empilhar(new,resultado);
     passos++;
-    printf("%dº -> %.3f %c %.3f = %.3f \n",passos,primeiro,operação,segundo,resultado);
+    printf("    %dº -> %.3f %c %.3f = %.3f \n",passos,primeiro,operação,segundo,resultado);
 }
 
 void o(No* no){
     No* aux = no;
     while(aux != NULL){
-        printf("%.2f - ",aux->numero);
+        printf("%.2f\n\n",aux->numero);
         aux = aux->next;
     }
     passos = 0;
@@ -110,7 +118,10 @@ void notação(char* expressão){
                 i++;
 
                 break;
-            } else if(expressão[i] < 48 || expressão[i] > 57) printf("%c não é reconhecido",expressão[i]);
+            } else if(expressão[i] < 48 || expressão[i] > 57) {
+                printf("%c não é reconhecido\n",expressão[i]);
+                return;
+            }
 
             if(sumDecimal){
                 decimal = add(decimal,expressão[i]);
@@ -127,20 +138,41 @@ void notação(char* expressão){
 
 }
 
-int main(){
+void exibirMenu() {
+    limparterminal();
+    printf("====================================\n");
+    printf("=       Calculadora de Notação     =\n");
+    printf("=     Polonesa Pós-Fixada (RPN)    =\n");
+    printf("====================================\n");
+    printf("= Operações permitidas: + - * / ^  =\n");
+    printf("= Digite sua expressão em notação  =\n");
+    printf("= pós-fixada separada por espaços  =\n");
+    printf("= Exemplo: '3 4 + 2 *'             =\n");
+    printf("= Digite '$' para encerrar o prog. =\n");
+    printf("====================================\n\n");
+}
 
+int main(){
+    exibirMenu();
+    while (1) {
     char * aux = (char*) malloc(10000* sizeof(char));
 
+    printf("Digite a expressão: ");
     scanf("%[^\n]%*c",aux);
-
+    
     char * expressão = (char *) malloc(strlen(aux) * sizeof(char));
 
     strcpy(expressão,aux);
+
+    if (expressão[0] == '$') {
+            printf("\nEncerrando o programa...\n");
+            break;
+        }
 
     free(aux);
 
     notação(expressão);
     free(expressão);
+    }
     return 0;
 }
-
