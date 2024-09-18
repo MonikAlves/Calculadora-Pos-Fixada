@@ -6,6 +6,7 @@ const char soma = '+';
 const char subtração = '-';
 const char multiplicação = '*';
 const char divisão = '/';
+const char elevado = '^';
 
 typedef struct no{
     double numero;
@@ -24,28 +25,54 @@ double add(double number,char converter){
     return number;
 }
 
-int dividir(double decimal){
-    int number = 1;
-    int size = (int) decimal;
-    while(size){
-        number *= 10;
-        size /= 10; 
+int expoente(double number, double expo, int quantitity){
+    if(quantitity){
+        int number = 1;
+        int size = (int) expo;
+        while(size){
+            number *= 10;
+            size /= 10; 
+        }
+        return number;
+      }else{
+        int soma = 1;
+        for(int i = 0;i<expo;i++){
+            soma *= number;
+        }
+        return soma;
     }
-    return number;
 }
 
-void armazenar(No** new,double number){
+void empilhar(No** new,double number){
+    //printf("entrou %.2f",number);
+    No* aux = createNo();
+    aux->next = *new;    
+    aux->numero = number;
+    *new = aux;
+}
+
+double desimpilhar(No** new){
     if(*new == NULL){
-        (*new) = createNo();
-        (*new)->numero = number;
-        return;
+        return 0;
     }
-    No* aux = *new;
-    while(aux->next != NULL){
-        aux = aux->next;
-    }
-    aux->next = createNo();
-    aux->next->numero = number;
+
+    No* aux = (*new)->next;
+    double numero = (*new)->numero;
+    free(*new);
+    *new = aux;
+    //printf("saiu %.2f",numero);
+    return numero;
+}
+
+void operação(No ** new, char operação){
+    double segundo = desimpilhar(new);
+    double primeiro = desimpilhar(new);
+
+    if(operação == soma) empilhar(new,primeiro + segundo);
+    if(operação == subtração) empilhar(new,primeiro - segundo);
+    if(operação == multiplicação) empilhar(new,primeiro * segundo);
+    if(operação == divisão) empilhar(new,primeiro / segundo);
+    if(operação == elevado) empilhar(new, expoente(primeiro,segundo,0));
 }
 
 void o(No* no){
@@ -68,15 +95,24 @@ void notação(char* expressão){
         while(aux){
             if(expressão[i] == ' ' || expressão[i] == '\0'){
                 aux = 0;
-                number = integer + (decimal/dividir(decimal));
-                armazenar(&new,number);
+                number = integer + (decimal/expoente(10,decimal,1));
+                empilhar(&new,number);
                 break;
             }
+
             
             if(expressão[i] == '.'){
                 sumDecimal = 1;
                 i++;
             }
+
+            if(expressão[i] == 42 || expressão[i] == 43 || expressão[i] == 45 ||expressão[i] == 47 || expressão[i] == 94 ){
+
+                operação(&new,expressão[i]);
+                i++;
+
+                break;
+            } else if(expressão[i] < 48 || expressão[i] > 57) printf("%c não é reconhecido",expressão[i]);
 
             if(sumDecimal){
                 decimal = add(decimal,expressão[i]);
