@@ -99,9 +99,14 @@ void notação(char* expressão){
         int sumDecimal = 0;
     	int isNegative = 0; 
 
-        if (expressão[i] == '-') {
-            isNegative = 1; 
+        if (i == 0 && expressão[i] == '-') {
+            isNegative = 1;
             i++;
+        } else if (expressão[i] == '-') {
+            if (i > 0 && expressão[i - 1] == ' ' && expressão[i+1] != ' ') {
+                isNegative = 1;
+                i++;
+            }
         }
 
         while(aux){
